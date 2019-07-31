@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.demo.Repository.EmpRepo;
+import com.example.demo.model.EditEmp;
 import com.example.demo.model.Employee;
+import com.example.demo.model.PasswordChange;
 import com.example.demo.model.loginUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -61,5 +63,41 @@ public class usercontroller {
 			return new ResponseEntity<Employee> (empdemo, HttpStatus.NOT_FOUND);
 		}
 	}
+	
+	@PostMapping("/savechange")
+	@ResponseBody
+	public ResponseEntity<Employee> saveChange(@RequestBody EditEmp editemp, HttpSession status) throws JsonProcessingException,NullPointerException
+	{
+		
+		Employee empdemo= repo.findById(editemp.getUid()).orElse(null);
+		
+		empdemo.setName(editemp.getName());
+		empdemo.setEmail(editemp.getEmail());
+		empdemo.setDes(editemp.getDes());
+		
+			return new ResponseEntity<Employee> (empdemo, HttpStatus.OK);
+		
+	}
+	
+	
+	@PostMapping("/savepassword")
+	@ResponseBody
+	public ResponseEntity<Employee> savePassword(@RequestBody PasswordChange passchange, HttpSession status) throws JsonProcessingException,NullPointerException
+	{
+		
+		Employee empdemo= repo.findById(passchange.getUid()).orElse(null);
+		
+		if((passchange.getOldpassword()).equals(empdemo.getPassword()))
+		{
+		empdemo.setPassword(passchange.getNewpassword());
+		
+			return new ResponseEntity<Employee> (empdemo, HttpStatus.OK);
+		}
+		else
+		{
+			return new ResponseEntity<Employee> (empdemo, HttpStatus.NOT_ACCEPTABLE);
+		}
+	}
+	
 	
 }

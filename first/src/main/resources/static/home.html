@@ -79,7 +79,7 @@ span.psw {
 <body>
 
 <div class="container" id="login">
-<form action="login" id="loginform">
+
 
   <div class="container">
     <label for="name"><b>Username</b></label>
@@ -93,7 +93,7 @@ span.psw {
       <input type="checkbox" checked="checked" name="remember"> Remember me
     </label>
   </div>
-</form>
+
   <div class="container" style="background-color:#f1f1f1">
     <button type="button" class="cancelbtn">Cancel</button>
     <button type="button" id="regi" name="regi" class="registerbtn">New User? Register!</button>
@@ -144,22 +144,62 @@ span.psw {
 <div id="div3" hidden="true">
 <h1>Employee Details</h1>
 <label for="uid"><b>User ID</b></label>
-    <input type="text" name="duid" id="duid">
+    <input type="text" name="duid" id="duid" readonly>
     
 	<label for="name"><b>Name</b></label>
-    <input type="text" name="dname" id="dname">
+    <input type="text" name="dname" id="dname" readonly>
     
     <label for="email"><b>Email</b></label>
-    <input type="text"name="demail" id="demail">
+    <input type="text"name="demail" id="demail" readonly>
 
     
     <label for="des"><b>Designation</b></label>
-    <input type="text" name="ddes" id="ddes">
-    <button type="submit" class="editdetails">Edit Details</button>
-    <button type="submit" class="changepswd">Change Password</button>
+    <input type="text" name="ddes" id="ddes" readonly>
+    <button type="submit" class="editdetails" id="editdetails">Edit Details</button>
+    <button type="submit" class="changepswd" id="changepswd">Change Password</button>
 
 </div>
 
+
+<div id="editdetailsdiv" hidden="true">
+<h1>Edit Employee Details</h1>
+<label for="uid"><b>User ID</b></label>
+    <input type="text" name="euid" id="euid" readonly>
+    
+	<label for="name"><b>Name</b></label>
+    <input type="text" name="ename" id="ename">
+    
+    
+    <label for="email"><b>Email</b></label>
+    <input type="text"name="eemail" id="eemail">
+
+    
+    <label for="des"><b>Designation</b></label>
+    <input type="text" name="edes" id="edes">
+    <button type="submit" class="savechanges" id="savechanges">Save Changes</button>
+    <button type="submit" class="back" id="back">Back</button>
+
+</div>
+<div id="editpassword" hidden="true">
+
+<h1>Change Password</h1>
+<label for="uid"><b>User ID</b></label>
+    <input type="text" name="puid" id="puid" readonly>
+    
+     <label for="password"><b>Enter Old Password</b></label>
+    <input type="password"name="oldpass" id="oldpass" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" required>
+    
+     <label for="password"><b>Enter New Password</b></label>
+    <input type="password"name="newpass" id="newpass" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" required>
+    
+    <label for="password"><b>Enter New Password</b></label>
+    <input type="password"name="repass" id="repass" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" onblur="fpp();" required>
+    
+    <button type="submit" class="savepassword" id="savepassword">Save Password</button>
+    <button type="submit" class="back" id="back">Back</button>
+    
+
+</div>
 </body>
 <script type="text/javascript">
 function foo()
@@ -172,15 +212,48 @@ function foo()
 		}
 	
 	}
+	
+function fpp()
+{
+	var a= document.getElementById("newpass").value;
+	var b= document.getElementById("repass").value;
+	if(!(a==b))
+		{
+			alert("doesnot  match");
+		}
+	
+	}
 alert("AJAX getting executed");
 $(document).ready(function () {
 
+	$("#editdetails").click(function(){
+	    $("#div3").hide();
+	    $("#editdetailsdiv").toggle();
+	    $("#euid").val( $("#duid").val());
+    	$("#ename").val($("#dname").val());
+    	$("#eemail").val($("#demail").val());
+    	$("#edes").val($("#ddes").val());
+	  });
+	
+	
 	$("#regi").click(function(){
 	    $("#login").hide();
 	    $("#div2").toggle();
 	  });
 	
 	
+	$("#changepswd").click(function(){
+	    $("#div3").hide();
+	    $("#editpassword").toggle();
+	    $("#puid").val( $("#duid").val());
+	  });
+	
+	
+	/* $("#changepswd").click(function(){
+	    $("#div3").hide();
+	    $("#editpassword").toggle();
+	  });
+	 */
 	
 		$("#back").click(function(){
 		    $("#div2").hide();
@@ -202,14 +275,74 @@ $(document).ready(function () {
     	        	$("#login").hide();
     	        	$("#div3").toggle();
     	        	alert(data.uid);
-    	        	$("#duid").text("data.uid");
-    	        	$("#dname").text("data.name");
-    	        	$("#demail").text("data.email");
-    	        	$("#dpassword").text("data.password");
+    	        	$("#duid").val(data.uid);
+    	        	$("#dname").val(data.name);
+    	        	$("#demail").val(data.email);
+    	        	$("#ddes").val(data.des);
     	        }
     	 
     });
 });
+    
+    
+    $("#savechanges").click(function () {
+   	 $.ajax({
+   	        type: "POST",
+   	        contentType: "application/json",
+   	        url: "/savechange",
+   	        data: JSON.stringify(
+   	        {
+   	        	uid: $("#euid").val(),
+   	        	name: $("#ename").val(),
+   	        	email: $("#eemail").val(),
+   	        	des: $("#edes").val()
+   	        }),
+   	        dataType: 'json',
+   	        success: function (data) {
+   	        	$("#editdetailsdiv").hide();
+   	        	$("#div3").toggle();
+   	        	alert(data.uid);
+   	        	$("#duid").val(data.uid);
+   	        	$("#dname").val(data.name);
+   	        	$("#demail").val(data.email);
+   	        	$("#ddes").val(data.des);
+   	        }
+   	 
+   });
+});
+    
+    
+    $("#savepassword").click(function () {
+      	 $.ajax({
+      	        type: "POST",
+      	        contentType: "application/json",
+      	        url: "/savepassword",
+      	        data: JSON.stringify(
+      	        {
+      	        	uid: $("#puid").val(),
+      	        	oldpassword: $("#oldpass").val(),
+      	        	newpassword: $("#newpass").val(),
+      	        	repassword: $("#repass").val()
+      	        }),
+      	        dataType: 'json',
+      	        success: function (data) {
+      	        	$("#editpassword").hide();
+      	        	$("#div3").toggle();
+      	        	alert(data.uid);
+      	        	$("#duid").val(data.uid);
+      	        	$("#dname").val(data.name);
+      	        	$("#demail").val(data.email);
+      	        	$("#ddes").val(data.des);
+      	        }
+      	/** error: function (e)
+      	 {
+      		 alert(e.responseText);
+      	 }**/
+      	 
+      });
+   });
+    
+    
 });
     
 </script>
